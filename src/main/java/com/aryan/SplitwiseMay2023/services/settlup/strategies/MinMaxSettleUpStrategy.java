@@ -12,6 +12,7 @@ public class MinMaxSettleUpStrategy implements SettleUpTransactionCalculatorStra
     @Override
     public List<Transaction> getTransaction(List<ExpenseOwingUser> expenseOwingUsers, List<ExpensePayingUser> expensePayingUsers) {
         HashMap<User, Double> debtCollectionMap = new HashMap<>();
+        List<Transaction> transactions = new ArrayList<>();
         // Calculating the total borrowed or lended amount for each user, Map will store the same.
         // update the owing users with negative value
         for (ExpenseOwingUser expenseOwingUser: expenseOwingUsers) {
@@ -54,6 +55,27 @@ public class MinMaxSettleUpStrategy implements SettleUpTransactionCalculatorStra
                 lendersMaxHeap.add(new UserAmountPair(userAmount.getKey(), userAmount.getValue()));
             }
         }
-        return null;
+        while (borrowersMinHeap.size() > 0) {
+            UserAmountPair maxBorrower = borrowersMinHeap.poll();
+            UserAmountPair maxLender = lendersMaxHeap.poll();
+
+            assert maxLender != null;
+            if (Math.abs(maxBorrower.getAmount()) > maxLender.getAmount()) {
+                // if borrower amount is greater than lender, then we clear up the lender
+                maxBorrower.setAmount(maxBorrower.getAmount() - maxLender.getAmount());
+                borrowersMinHeap.add(maxBorrower);
+                Transaction t = new Transaction(maxBorrower.getUser(), maxLender.getUser(), maxLender.getAmount());
+                transactions.add(t);
+            } else if (Math.abs(maxBorrower.getAmount()) < maxLender.getAmount()) {
+                maxLender.setAmount(maxLender.getAmount() + maxBorrower.getAmount());
+                lendersMaxHeap.add(maxLender);
+                Transaction t = new Transaction(maxBorrower.getUser(), maxLender.getUser(), Math.abs(maxBorrower.getAmount()));
+                transactions.add(t);
+            } else  {
+                Transaction t = new Transaction(maxBorrower.getUser(), maxLender.getUser(), maxLender.getAmount());
+                transactions.add(t);
+            }
+        }
+        return transactions;
     }
 }

@@ -5,12 +5,12 @@ import com.aryan.SplitwiseMay2023.models.User;
 public class Transaction {
     private User from;
     private User to;
-    private int amount;
+    private double amount;
 
     public Transaction() {
     }
 
-    public Transaction(User from, User to, int amount) {
+    public Transaction(User from, User to, double amount) {
         this.from = from;
         this.to = to;
         this.amount = amount;
@@ -32,11 +32,11 @@ public class Transaction {
         this.to = to;
     }
 
-    public int getAmount() {
+    public double getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(double amount) {
         this.amount = amount;
     }
 }
